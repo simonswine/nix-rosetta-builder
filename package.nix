@@ -205,4 +205,4 @@ let
     ] ++ [ potentiallyInsecureExtraNixosModule ];
   };
 in
-imageConfig.config.system.build.images.qemu-efi
+imageConfig.config.system.build.images.raw-efi
