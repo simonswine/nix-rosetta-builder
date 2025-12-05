@@ -1,36 +1,36 @@
-{
-  # dependencies
-  nixos-generators,
-  nixpkgs,
-  # pkgs
-  lib,
-  mount,
-  umount,
-  # configuration
-  linuxSystem,
-  debugInsecurely ? false, # enable auto-login and passwordless sudo to root
-  potentiallyInsecureExtraNixosModule ? { },
-  onDemand ? false, # enable launchd socket activation
-  onDemandLingerMinutes ? 180, # poweroff after 3 hours of inactivity
-  withRosetta ? true,
+{ nixpkgs
+, # pkgs
+  lib
+, mount
+, umount
+, # configuration
+  linuxSystem
+, debugInsecurely ? false
+, # enable auto-login and passwordless sudo to root
+  potentiallyInsecureExtraNixosModule ? { }
+, onDemand ? false
+, # enable launchd socket activation
+  onDemandLingerMinutes ? 180
+, # poweroff after 3 hours of inactivity
+  withRosetta ? true
+,
 }:
-nixos-generators.nixosGenerate (
-  let
-    inherit (lib) escapeShellArg optionalAttrs optionals;
-    inherit (import ./constants.nix)
-      linuxHostName
-      linuxUser
-      sshHostPrivateKeyFileName
-      sshUserPublicKeyFileName
-      ;
-    imageFormat = "qcow-efi"; # must match `vmYaml.images.location`s extension
 
-    sshdKeys = "sshd-keys";
-    sshDirPath = "/etc/ssh";
-    sshHostPrivateKeyFilePath = "${sshDirPath}/${sshHostPrivateKeyFileName}";
-  in
-  {
-    format = imageFormat;
+let
+  inherit (lib) escapeShellArg optionalAttrs optionals;
+  inherit (import ./constants.nix)
+    linuxHostName
+    linuxUser
+    sshHostPrivateKeyFileName
+    sshUserPublicKeyFileName
+    ;
+
+  sshdKeys = "sshd-keys";
+  sshDirPath = "/etc/ssh";
+  sshHostPrivateKeyFilePath = "${sshDirPath}/${sshHostPrivateKeyFileName}";
+
+  imageConfig = nixpkgs.lib.nixosSystem {
+    system = linuxSystem;
     modules = [
       {
         boot = {
@@ -202,8 +202,7 @@ nixos-generators.nixosGenerate (
           mountTag = "vz-rosetta";
         };
       }
-    ]
-    ++ [ potentiallyInsecureExtraNixosModule ];
-    system = linuxSystem;
-  }
-)
+    ] ++ [ potentiallyInsecureExtraNixosModule ];
+  };
+in
+imageConfig.config.system.build.images.qemu-efi

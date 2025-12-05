@@ -1,13 +1,13 @@
 {
   # configuration
-  image,
-  linuxSystem,
+  image
+, linuxSystem
+,
 }:
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }:
 let
   inherit (lib)
@@ -189,7 +189,7 @@ in
         images = [
           {
             # extension must match `imageFormat`
-            location = "${imageWithFinalConfig}/nixos.qcow2";
+            location = "${imageWithFinalConfig}/${imageWithFinalConfig.passthru.filePath}";
           }
         ];
 
